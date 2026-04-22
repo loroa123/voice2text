@@ -17,6 +17,7 @@ align:
 
 diarize:
   enabled: true
+  model_name: pyannote/speaker-diarization-3.1
   min_speakers: 2
   max_speakers: 2
 

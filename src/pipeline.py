@@ -22,6 +22,7 @@ class PipelineConfig:
     align_enabled: bool = True
     align_zh_model: str = "jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn"
     diarize_enabled: bool = True
+    diarize_model_name: str = "pyannote/speaker-diarization-3.1"
     min_speakers: int = 2
     max_speakers: int = 2
     initial_prompt: str | None = None
@@ -104,8 +105,18 @@ def transcribe_file(audio_path: Path, cfg: PipelineConfig) -> dict[str, Any]:
             raise RuntimeError(
                 "需要 HF_TOKEN 才能做说话人分离。请在 .env 设置 HF_TOKEN，或使用 --no-diarize。"
             )
-        diarize_pipeline = whisperx.DiarizationPipeline(
-            use_auth_token=cfg.hf_token,
+        # 兼容不同 whisperx 版本：3.4 之后 DiarizationPipeline 移到 whisperx.diarize 下
+        DiarizationPipeline = getattr(whisperx, "DiarizationPipeline", None)
+        if DiarizationPipeline is None:
+            from whisperx.diarize import DiarizationPipeline  # type: ignore
+
+        # 3.8 之后 use_auth_token 参数被改名为 token，做一次兼容判断
+        import inspect as _inspect
+        _params = _inspect.signature(DiarizationPipeline.__init__).parameters
+        _token_kwarg = "token" if "token" in _params else "use_auth_token"
+        diarize_pipeline = DiarizationPipeline(
+            **{_token_kwarg: cfg.hf_token},
+            model_name=cfg.diarize_model_name,
             device=cfg.device,
         )
         diarize_segments = diarize_pipeline(
@@ -142,6 +153,7 @@ def build_config(raw: dict[str, Any], overrides: dict[str, Any]) -> PipelineConf
             "zh_model", "jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn"
         ),
         diarize_enabled=bool(diar.get("enabled", True)),
+        diarize_model_name=diar.get("model_name", "pyannote/speaker-diarization-3.1"),
         min_speakers=int(diar.get("min_speakers", 2)),
         max_speakers=int(diar.get("max_speakers", 2)),
         hf_token=os.environ.get("HF_TOKEN"),

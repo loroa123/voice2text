@@ -18,7 +18,7 @@ bash scripts/setup.sh
 
 # 3) 配置 HuggingFace Token（说话人分离必需）
 #    先到 https://huggingface.co/settings/tokens 生成 Read Token
-#    再到下面两个页面点 "Agree and access repository"：
+#    再到下面页面点 "Agree and access repository"（默认 diarization 模型）：
 #      https://huggingface.co/pyannote/segmentation-3.0
 #      https://huggingface.co/pyannote/speaker-diarization-3.1
 #    然后编辑项目根目录的 .env：
@@ -72,6 +72,12 @@ python -m src.cli input/meeting.mp3 --model large-v3-turbo
 | `--glossary` | 术语表路径 | `prompts/glossary.txt` |
 | `--output-dir` | 输出目录 | `output/` |
 | `--keep-wav` | 保留中间 WAV | 关 |
+
+`config.yaml` 中可配置说话人分离模型，默认使用：
+
+`pyannote/speaker-diarization-3.1`
+
+如果你改用 `pyannote/speaker-diarization-community-1`，需额外到对应 HF 页面申请访问权限。
 
 ## 三、术语表（提升识别率）
 
