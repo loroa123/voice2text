@@ -1,0 +1,24 @@
+model:
+  name: large-v3
+  compute_type: int8
+  device: cpu
+  batch_size: 8
+
+transcribe:
+  language: zh
+  task: transcribe
+  beam_size: 5
+  condition_on_previous_text: false
+  vad_filter: true
+
+align:
+  enabled: true
+  zh_model: jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn
+
+diarize:
+  enabled: true
+  min_speakers: 2
+  max_speakers: 2
+
+glossary_path: prompts/glossary.txt
+output_dir: output

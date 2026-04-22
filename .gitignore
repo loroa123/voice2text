@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
+.DS_Store
+*.wav
+*.mp3
+*.m4a
